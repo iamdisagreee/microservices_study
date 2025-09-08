@@ -4,6 +4,7 @@ from fastapi import FastAPI
 
 from app.routers import posts
 from app.core.database import create_db_and_tables
+from app.core.rabbitmq import category_validator_instance
 
 
 @asynccontextmanager
@@ -11,7 +12,9 @@ async def lifespan(app: FastAPI):
     print("Приложение запускается. Создаем базу данных...")
     await create_db_and_tables()
     print("База данных инициализирована.")
+    await category_validator_instance.connect()  # Подключаемся к RabbitMQ
     yield
+    await category_validator_instance.close()
     print("Приложение завершает работу.")
 
 
