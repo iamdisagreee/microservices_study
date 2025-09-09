@@ -8,17 +8,45 @@ services:
       RABBITMQ_DEFAULT_PASS: guest
     healthcheck: # Проверка готовности RabbitMQ
       test: [ "CMD", "rabbitmq-diagnostics", "check_port_connectivity" ]
-      interval: 10s
-      timeout: 5s
+      interval: 5s
+      timeout: 2s
       retries: 5
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    command:
+      - redis-server
+#      - --requirepass aue
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    restart: on-failure
+
+#  api_gateway_service:
+#    build: ./api_gateway_service
+#    ports:
+#      - "127.0.0.1:8000:8000"
+#    environment:
+#      POSTS_SERVICE_URL: http://posts_service:8000
+#      CATEGORIES_SERVICE_URL: http://categories_service:8000
+#    depends_on:
+#      posts_service:
+#        condition: service_started
+#      categories_service:
+#        condition: service_started
+#    restart: on-failure
 
   posts_service:
     build: ./posts_service
     ports:
-      - "127.0.0.1:8001:8000" # Порт, по которому будет доступен Posts Service
+      - "127.0.0.1:8001:8000"
     environment:
       DATABASE_URL: sqlite+aiosqlite:///./data/posts.db # Отдельная БД для постов
       RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
+      REDIS_HOST: redis          # <── добавьте
+      REDIS_PORT: 6379           # <── добавьте
     volumes:
       - posts_db_data:/app/data
     depends_on:
@@ -26,12 +54,14 @@ services:
         condition: service_started # Posts Service зависит от Categories Service для валидации
       rabbitmq:
         condition: service_healthy
+      redis:
+        condition: service_started
 
 
   categories_service:
     build: ./categories_service
     ports:
-      - "127.0.0.1:8002:8000" # Порт, по которому будет доступен Categories Service
+      - "127.0.0.1:8002:8000"
     environment:
       DATABASE_URL: sqlite+aiosqlite:///./data/categories.db # Отдельная БД для категорий
       RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
@@ -44,3 +74,4 @@ services:
 volumes:
   posts_db_data:
   categories_db_data:
+  redis_data:

@@ -5,7 +5,7 @@ from sqlalchemy.orm import DeclarativeBase
 
 
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite+aiosqlite:///./data/posts.db")
-engine = create_async_engine(DATABASE_URL, echo=True)
+engine = create_async_engine(DATABASE_URL, echo=False)
 
 # Base для декларативного определения моделей
 class Base(DeclarativeBase):

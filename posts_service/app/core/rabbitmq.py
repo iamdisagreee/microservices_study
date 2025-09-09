@@ -62,7 +62,7 @@ class RpcClient:
             self.futures.pop(correlation_id, None)
             return None
 
-class RabbitMQValidator:
+class RabbitMQCategoryValidator:
     """Конкретная реализация валидатора категорий через RabbitMQ RPC."""
 
     def __init__(self):
@@ -80,6 +80,6 @@ class RabbitMQValidator:
             return False
         return response == b'true'
 
-category_validator_instance = RabbitMQValidator()
+category_validator_instance = RabbitMQCategoryValidator()
 
 

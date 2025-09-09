@@ -1,4 +1,4 @@
-from fastapi import Depends
+from fastapi import Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import AsyncSessionLocal
@@ -10,6 +10,10 @@ from app.core.rabbitmq import RabbitMQCategoryValidator, category_validator_inst
 async def get_async_db():
     async with AsyncSessionLocal() as db:
         yield db
+
+# # Зависимость для получения клиента Redis в маршрутах
+# async def get_redis_client_dependency():
+#     return redis_client
 
 
 def get_post_repository(db: AsyncSession = Depends(get_async_db)) -> PostRepository:
