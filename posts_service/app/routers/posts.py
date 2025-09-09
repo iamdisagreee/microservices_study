@@ -72,5 +72,5 @@ async def read_post(
     if db_post is None:
         raise HTTPException(status_code=404, detail="Post not found")
     # await r.set(cache_key, Post.model_validate(db_post).model_dump_json(), ex=60)
-    # logger.info(f"Post '{post_id}' успешно передан.")
+    logger.info(f"Post '{post_id}' successfully loaded.")
     return db_post

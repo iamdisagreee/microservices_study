@@ -21,7 +21,7 @@ from app.core.logging_config import logger
 async def lifespan(app: FastAPI):
     redis_client = aioredis.from_url("redis://redis:6379/0")
     redis_client_2 = aioredis.from_url("redis://redis:6379/1")
-    logger.info("Запуск сервера...")
+    logger.info("Loading server...")
     try:
         await create_db_and_tables()
         await category_validator_instance.connect()  # Подключаемся к RabbitMQ
@@ -81,12 +81,14 @@ async def log_requests(request: Request, call_next):
     process_time = (time.time() - start_time) * 1000
     formatted_process_time = '{0:.2f}'.format(process_time)
 
-    logger.info(
-        f"request_path={request.url.path} "
-        f"status_code={response.status_code} "
-        f"process_time_ms={formatted_process_time}"
-    )
-
+    logger.info({
+        "request_path": str(request.url.path),
+        # URL может быть сложным объектом, лучше преобразовать в строку
+        "method": request.method,
+        "status_code": response.status_code,
+        "process_time_ms": f"{process_time:.2f}",
+        "client_ip": request.client.host
+    })
     return response
 
 
